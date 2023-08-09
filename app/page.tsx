@@ -1,5 +1,5 @@
-import Categories from "@/components/Categories";
 import Header from "@/components/Header";
+import { log } from "console";
 import React from "react";
 
 interface Product {
@@ -7,41 +7,49 @@ interface Product {
   title: string;
   description: string;
   price: number;
-  images: Array<string>;
+  image: string;
 }
 
-async function getProducts() {
-  const res = await fetch("https://dummyjson.com/products");
-  if (!res.ok) {
-    throw new Error("Failed to fetch data");
-  }
-  return res.json();
-}
+type Props = {
+  // params?: {
+  //   num?: string;
+  // };
+  searchParams?: {
+    category?: string;
+  };
+};
 
-const page = async () => {
-  const { products } = await getProducts();
+const page = async (props: Props) => {
+  const category = props.searchParams?.category;
+
+  const getProducts = async () => {
+    const res = await fetch(
+      `https://fakestoreapi.com/products/category/${category}`
+    );
+    if (!res.ok) {
+      throw new Error("Failed to fetch data");
+    }
+    return res.json();
+  };
+  const products = await getProducts();
 
   return (
-    <section className="flex items-start gap-10">
-      <Categories />
-      <div className="w-[70%]">
-        <Header />
-        <div className="grid grid-cols-3 gap-5">
-          {products.map((product: Product) => {
-            const { images } = product;
-            return (
-              <article key={product.id}>
-                <div className="w-[200px] h-[200px]">
-                  <img
-                    src={images[0]}
-                    alt={product.title}
-                    className="max-w-full w-full h-full object-contain"
-                  />
-                </div>
-              </article>
-            );
-          })}
-        </div>
+    <section className="">
+      <Header />
+      <div className="grid grid-cols-4 gap-5">
+        {products.map((product: Product) => {
+          return (
+            <article key={product.id} className="w-full bg-white p-4">
+              <div className="w-[200px] h-[200px]">
+                <img
+                  src={product.image}
+                  alt={product.title}
+                  className="max-w-full w-full h-full object-contain"
+                />
+              </div>
+            </article>
+          );
+        })}
       </div>
     </section>
   );
